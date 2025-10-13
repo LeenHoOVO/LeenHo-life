@@ -301,10 +301,26 @@
 }
 
 .banner-title {
-  font-size: 3.5em;
-  margin-bottom: 15px;
-  font-weight: 800;
-  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+  font-size: 4em; /* Slightly larger font size */
+  margin-bottom: 20px;
+  font-weight: 900; /* Bolder */
+  background: linear-gradient(45deg, #ffffff, #c7e9fb); /* White to light blue gradient */
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 2px 2px 15px rgba(0, 0, 0, 0.25); /* Softer, larger shadow */
+  animation: fadeInDown 1s ease-out; /* Add animation */
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .banner-subtitle {

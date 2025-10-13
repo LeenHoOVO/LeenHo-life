@@ -5,12 +5,6 @@
       <div class="banner-content">
         <h1 class="banner-title">{{ welcome.title }}</h1>
         <p class="banner-subtitle">{{ welcome.subtitle }}</p>
-        <div class="banner-stats">
-          <div class="stat-item" v-for="(stat, index) in welcome.stats" :key="index">
-            <span class="stat-number">{{ stat.number }}</span>
-            <span class="stat-label">{{ stat.label }}</span>
-          </div>
-        </div>
       </div>
     </div>
 

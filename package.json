@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@mmt817/pixel-ui": "^1.6.0",
     "lodash.throttle": "^4.1.1",
     "vue": "^3.5.18",
     "vue-router": "^4.5.1"

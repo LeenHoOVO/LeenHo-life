@@ -38,21 +38,25 @@
       <router-view />
     </div>
 
-    <!-- 背景视频 -->
+    <!-- 背景 -->
     <div id="app-background">
-      <video autoplay loop muted playsinline>
+      <video ref="videoRef" autoplay loop muted playsinline crossOrigin="anonymous" style="display: none;">
         <source src="/videos/败犬壁纸.mp4" type="video/mp4">
       </video>
+      <canvas ref="canvasRef"></canvas>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 // import { personalData } from '../data/personalData.js' // 移除对 personalData 的引用
 
 const theme = ref('system')
 // const sidebar = ref(personalData.sidebar) // 移除对 sidebar 的引用
+const videoRef = ref(null)
+const canvasRef = ref(null)
+let animationFrameId = null;
 
 const setTheme = (newTheme) => {
   theme.value = newTheme
@@ -66,6 +70,33 @@ const applyTheme = () => {
   document.documentElement.dataset.theme = actualTheme
 }
 
+const drawPixelatedVideo = () => {
+  const video = videoRef.value
+  const canvas = canvasRef.value
+  if (video && canvas && video.readyState >= 3) {
+    const ctx = canvas.getContext('2d')
+    const pixelationLevel = 5; // 您可以调整这个值来改变像素颗粒大小
+
+    const tempCanvas = document.createElement('canvas');
+    const tempCtx = tempCanvas.getContext('2d');
+
+    // 1. 根据像素化程度，计算缩小后的尺寸
+    const smallWidth = canvas.clientWidth / pixelationLevel;
+    const smallHeight = canvas.clientHeight / pixelationLevel;
+    tempCanvas.width = smallWidth;
+    tempCanvas.height = smallHeight;
+
+    // 2. 将视频当前帧“缩小”绘制到临时canvas上
+    tempCtx.drawImage(video, 0, 0, smallWidth, smallHeight);
+
+    // 3. 关闭平滑处理，然后将小图像“放大”绘制回主canvas
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(tempCanvas, 0, 0, smallWidth, smallHeight, 0, 0, canvas.width, canvas.height);
+  }
+  // 形成动画循环
+  animationFrameId = requestAnimationFrame(drawPixelatedVideo);
+}
+
 onMounted(() => {
   const savedTheme = localStorage.getItem('theme') || 'system'
   theme.value = savedTheme
@@ -73,7 +104,31 @@ onMounted(() => {
   
   // 监听系统主题变化
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme)
+  
+  const video = videoRef.value;
+  const canvas = canvasRef.value;
+  if(video && canvas) {
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
+    video.addEventListener('loadeddata', () => {
+      // 强制启动视频播放，以防 autoplay 失效
+      video.play().catch(error => {
+        console.error("Video autoplay was blocked:", error);
+        // 可以在这里给用户一个播放按钮作为备用方案
+      });
+      // 只需要调用一次来启动循环
+      drawPixelatedVideo();
+    });
+  }
 })
+
+onUnmounted(() => {
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId);
+  }
+  window.matchMedia('(prefers-color-scheme: dark)').removeEventListener('change', applyTheme);
+})
+
 </script>
 
 <style scoped src="../styles/Layout.css"></style>
